@@ -1,0 +1,33 @@
+{
+  "name": "artisan-cassandra-orm",
+  "version": "0.0.3",
+  "description": "Fun and friendly data validation.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node node_modules/jasmine-node/bin/jasmine-node spec && jshint lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MCProHosting/artisan-cassandra-orm.git"
+  },
+  "keywords": [
+    "database",
+    "db",
+    "cassandra",
+    "orm"
+  ],
+  "author": "Connor Peet <connor@connorpeet.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MCProHosting/artisan-cassandra-orm/issues"
+  },
+  "homepage": "https://github.com/MCProHosting/artisan-cassandra-orm",
+  "devDependencies": {
+    "jasmine-node": "~2.0.0"
+  },
+  "dependencies": {
+    "bluebird": "~2.3.11",
+    "cassandra-driver": "^1.0.2",
+    "lodash": "~2.4.1"
+  }
+}
