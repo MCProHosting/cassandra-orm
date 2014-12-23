@@ -1,5 +1,7 @@
 var Where = require('../../lib/cql/stmt/where');
 var Order = require('../../lib/cql/stmt/order');
+var Assignment = require('../../lib/cql/stmt/assignment');
+var Conditionals = require('../../lib/cql/stmt/conditionals');
 var Tuple = require('../../lib/cql/stmt/termTuple');
 var Raw = require('../../lib/cql/stmt/raw');
 var t = require('../../lib/cql/types');
@@ -66,27 +68,94 @@ describe('where', function () {
 describe('order', function () {
     it('orders with raw string', function () {
         expect(new Order()
-            .by(new Raw('a DESC'))
+            .orderBy(new Raw('a DESC'))
             .toString()
         ).toBe('a DESC');
     });
     it('orders by column modifier', function () {
         expect(new Order()
-            .by(t.Text('a').desc())
+            .orderBy(t.Text('a').desc())
             .toString()
         ).toBe('a DESC');
     });
     it('orders by column name string', function () {
         expect(new Order()
-            .by('a', 'DESC')
+            .orderBy('a', 'DESC')
             .toString()
         ).toBe('a DESC');
     });
     it('orders by multiple', function () {
         expect(new Order()
-            .by('a', 'DESC')
-            .by('b', 'ASC')
+            .orderBy('a', 'DESC')
+            .orderBy('b', 'ASC')
             .toString()
         ).toBe('a DESC, b ASC');
+    });
+});
+
+describe('conditionals', function () {
+    it('works with none', function () {
+        expect(new Conditionals()
+            .parameterize()
+        ).toEqual([[], '']);
+    });
+    it('works with one', function () {
+        expect(new Conditionals()
+            .when('a', 1)
+            .parameterize()
+        ).toEqual([[1], 'a = ?']);
+    });
+    it('works with many', function () {
+        expect(new Conditionals()
+            .when('a', 1)
+            .when('b', 2)
+            .when('c', 3)
+            .parameterize()
+        ).toEqual([[1, 2, 3], 'a = ? AND b = ? AND c = ?']);
+    });
+});
+
+describe('assignment', function () {
+    it('takes raw string', function () {
+        expect(new Assignment()
+            .set(new Raw('key = value'))
+            .parameterize()
+        ).toEqual([[], 'key = value']);
+    });
+
+    it('works as column_name = value', function () {
+        expect(new Assignment()
+            .set('key', 'value')
+            .parameterize()
+        ).toEqual([['value'], 'key = ?']);
+
+        expect(new Assignment()
+            .set('key', new Raw('value'))
+            .parameterize()
+        ).toEqual([[], 'key = value']);
+    });
+
+    it('works as set_or_list_item = set_or_list_item + ...', function () {
+        expect(new Assignment()
+            .add('set', 'value')
+            .parameterize()
+        ).toEqual([['value'], 'set = set + ?']);
+
+        expect(new Assignment()
+            .add('set', new Raw('value'))
+            .parameterize()
+        ).toEqual([[], 'set = set + value']);
+    });
+
+    it('works as column_name [ term ] = value', function () {
+        expect(new Assignment()
+            .set('set', 2, 'value')
+            .parameterize()
+        ).toEqual([[2, 'value'], 'set [?] = ?']);
+
+        expect(new Assignment()
+            .set('set', new Raw(2), new Raw('value'))
+            .parameterize()
+        ).toEqual([[], 'set [2] = value']);
     });
 });
