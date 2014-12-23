@@ -1,4 +1,4 @@
-var Select = require('../../lib/cql/select');
+var Select = require('../../lib/cql/queries/select');
 var Raw = require('../../lib/cql/stmt/raw');
 var Table = require('../../lib/cql/table');
 var t  = require('../../lib/cql/types');

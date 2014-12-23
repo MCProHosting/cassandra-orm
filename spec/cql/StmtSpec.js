@@ -1,6 +1,6 @@
 var Where = require('../../lib/cql/stmt/where');
 var Order = require('../../lib/cql/stmt/order');
-var Tuple = require('../../lib/cql/stmt/constructors/termTuple');
+var Tuple = require('../../lib/cql/stmt/termTuple');
 var Raw = require('../../lib/cql/stmt/raw');
 var t = require('../../lib/cql/types');
 
