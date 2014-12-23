@@ -51,26 +51,26 @@ describe('custom column', function () {
 describe('column states', function () {
     it('as', function () {
         var column = new BasicColumn('name');
-        expect(column.as('foo').getName()).toBe('name as foo');
+        expect(column.as('foo').toString()).toBe('name as foo');
     });
     it('ttl', function () {
         var column = new BasicColumn('name');
-        expect(column.ttl().getName()).toBe('TTL(name)');
+        expect(column.ttl().toString()).toBe('TTL(name)');
     });
     it('count', function () {
         var column = new BasicColumn('name');
-        expect(column.count().getName()).toBe('COUNT(name)');
+        expect(column.count().toString()).toBe('COUNT(name)');
     });
     it('writeTime', function () {
         var column = new BasicColumn('name');
-        expect(column.writeTime().getName()).toBe('WRITETIME(name)');
+        expect(column.writeTime().toString()).toBe('WRITETIME(name)');
     });
     it('distinct', function () {
         var column = new BasicColumn('name');
-        expect(column.distinct().getName()).toBe('DISTINCT name');
+        expect(column.distinct().toString()).toBe('DISTINCT name');
     });
     it('works with multiple', function () {
         var column = new BasicColumn('name');
-        expect(column.count().as('foo').getName()).toBe('COUNT(name) as foo');
+        expect(column.count().as('foo').toString()).toBe('COUNT(name) as foo');
     });
 });
