@@ -49,28 +49,28 @@ describe('custom column', function () {
 });
 
 describe('column states', function () {
-    it('as', function () {
+    it('select functions', function () {
         var column = new BasicColumn('name');
         expect(column.as('foo').toString()).toBe('name as foo');
-    });
-    it('ttl', function () {
-        var column = new BasicColumn('name');
         expect(column.ttl().toString()).toBe('TTL(name)');
-    });
-    it('count', function () {
-        var column = new BasicColumn('name');
         expect(column.count().toString()).toBe('COUNT(name)');
-    });
-    it('writeTime', function () {
-        var column = new BasicColumn('name');
         expect(column.writeTime().toString()).toBe('WRITETIME(name)');
-    });
-    it('distinct', function () {
-        var column = new BasicColumn('name');
         expect(column.distinct().toString()).toBe('DISTINCT name');
-    });
-    it('works with multiple', function () {
-        var column = new BasicColumn('name');
         expect(column.count().as('foo').toString()).toBe('COUNT(name) as foo');
+        expect(column.dateOf().toString()).toBe('dateOf(name)');
+        expect(column.minTimeuuid().toString()).toBe('minTimeuuid(name)');
+        expect(column.maxTimeuuid().toString()).toBe('maxTimeuuid(name)');
+        expect(column.unixTimestampOf().toString()).toBe('unixTimestampOf(name)');
+        expect(column.token().toString()).toBe('token(name)');
+    });
+    it('orders functions', function () {
+        var column = new BasicColumn('name');
+        expect(column.desc().toString()).toBe('name DESC');
+        expect(column.asc().toString()).toBe('name ASC');
+    });
+    it('blob functions', function () {
+        var column = new BasicColumn('name', 'text');
+        expect(column.asBlob().toString()).toBe('textAsBlob(name)');
+        expect(column.blobAsText().toString()).toBe('blobAsText(name)');
     });
 });
