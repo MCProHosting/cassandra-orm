@@ -61,4 +61,21 @@ describe('select', function () {
             .parameterize()
         ).toEqual([[3, 1, 2], 'SELECT a, b FROM tbl WHERE a < ? OR (r > ? OR z > x) AND c > ?;']);
     });
+
+    it('adds limit', function () {
+        expect(new Select()
+            .from(table)
+            .limit(5)
+            .parameterize()
+        ).toEqual([[], 'SELECT * FROM tbl LIMIT 5;']);
+    });
+
+    it('orders', function () {
+        expect(new Select()
+            .from(table)
+            .orderBy('a', 'asc')
+            .orderBy(t.Text('b').desc())
+            .parameterize()
+        ).toEqual([[], 'SELECT * FROM tbl ORDER BY a ASC, b DESC;']);
+    });
 });
