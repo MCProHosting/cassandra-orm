@@ -78,4 +78,12 @@ describe('select', function () {
             .parameterize()
         ).toEqual([[], 'SELECT * FROM tbl ORDER BY a ASC, b DESC;']);
     });
+
+    it('allows filter', function () {
+        expect(new Select()
+            .from(table)
+            .filter()
+            .parameterize()
+        ).toEqual([[], 'SELECT * FROM tbl ALLOW FILTERING;']);
+    });
 });
