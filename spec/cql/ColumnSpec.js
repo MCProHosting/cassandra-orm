@@ -47,3 +47,30 @@ describe('custom column', function () {
         expect(column.getEntry()).toBe('name frozen <funType>');
     });
 });
+
+describe('column states', function () {
+    it('as', function () {
+        var column = new BasicColumn('name');
+        expect(column.as('foo').getName()).toBe('name as foo');
+    });
+    it('ttl', function () {
+        var column = new BasicColumn('name');
+        expect(column.ttl().getName()).toBe('TTL(name)');
+    });
+    it('count', function () {
+        var column = new BasicColumn('name');
+        expect(column.count().getName()).toBe('COUNT(name)');
+    });
+    it('writeTime', function () {
+        var column = new BasicColumn('name');
+        expect(column.writeTime().getName()).toBe('WRITETIME(name)');
+    });
+    it('distinct', function () {
+        var column = new BasicColumn('name');
+        expect(column.distinct().getName()).toBe('DISTINCT name');
+    });
+    it('works with multiple', function () {
+        var column = new BasicColumn('name');
+        expect(column.count().as('foo').getName()).toBe('COUNT(name) as foo');
+    });
+});
