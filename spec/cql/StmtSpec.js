@@ -54,6 +54,13 @@ describe('where', function () {
             .parameterize()
         ).toEqual([[1, 2, 3], 'a < (?, ?, (?, 4))']);
     });
+    it('does not mutilate complex types', function () {
+        expect(new Where()
+            .where('a', '<', [1, 2, 3])
+            .andWhere('b', '>', { q: 1, w: 2 })
+            .parameterize()
+        ).toEqual([[[1, 2, 3], { q: 1, w: 2 }], 'a < ? AND b > ?']);
+    });
 });
 
 describe('order', function () {
