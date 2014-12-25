@@ -1,3 +1,4 @@
+var Columns = require('../../lib/cql/stmt/columns');
 var Where = require('../../lib/cql/stmt/where');
 var Order = require('../../lib/cql/stmt/order');
 var Assignment = require('../../lib/cql/stmt/assignment');
@@ -105,6 +106,12 @@ describe('conditionals', function () {
             .parameterize()
         ).toEqual([[1], 'a = ?']);
     });
+    it('works with exists', function () {
+        expect(new Conditionals()
+            .when('a')
+            .parameterize()
+        ).toEqual([[], 'EXISTS a']);
+    });
     it('works with many', function () {
         expect(new Conditionals()
             .when('a', 1)
@@ -157,5 +164,23 @@ describe('assignment', function () {
             .set('set', new Raw(2), new Raw('value'))
             .parameterize()
         ).toEqual([[], 'set [2] = value']);
+    });
+});
+
+describe('columns', function () {
+    it('works with variadic', function () {
+        expect(new Columns()
+            .columns('a', 'b')
+            .toString()
+        ).toBe('a, b');
+    });
+    it('works with array argument', function () {
+        expect(new Columns()
+            .columns(['a', 'b'])
+            .toString()
+        ).toBe('a, b');
+    });
+    it('takes a default', function () {
+        expect(new Columns(['a']).toString()).toBe('a');
     });
 });
