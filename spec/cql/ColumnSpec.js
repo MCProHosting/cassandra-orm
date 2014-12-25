@@ -11,6 +11,18 @@ describe('basic column', function () {
         var column = new BasicColumn('name', 'text').addAttr('static');
         expect(column.getEntry()).toBe('name text STATIC');
     });
+    it('sets partition keying', function () {
+        var column = new BasicColumn('name', 'text');
+        expect(column.isKey).toEqual({ partition: false, compound: false });
+        column.partitionKey();
+        expect(column.isKey).toEqual({ partition: true, compound: false });
+    });
+    it('sets compount keying', function () {
+        var column = new BasicColumn('name', 'text');
+        expect(column.isKey).toEqual({ partition: false, compound: false });
+        column.compoundKey();
+        expect(column.isKey).toEqual({ partition: false, compound: true });
+    });
 });
 
 describe('collection column', function () {
