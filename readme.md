@@ -153,12 +153,25 @@ The select builder provides the components listed above:
  * table as `.from`
  * columns (`.columns`)
  * where (`.where`, `.andWhere`, `.orWhere`)
- * order (`.orderBy`)
 
 Additionally, the following two methods:
 
  * `.limit(amount: Number)` Limits the query to the following number.
  * `.filter([filtering: Boolean=true])` Turns `ALLOW FILTERING` on or off.
+ * `.orderBy(column: String, direction: String)`
+
+```js
+c.select()
+ .columns('first_name')
+ .from('hobbits')
+ .where('last_name', '=', 'baggins')
+ .orderBy('first_name', 'desc')
+ .limit(2)
+ .filter()
+ .then(function (results) {
+    // ...
+ })
+```
 
 ##### Insert
 
@@ -172,6 +185,16 @@ Additionally, the following methods:
  * `.data(map: Object)` Inserts a key: value set of data.
  * `.columns` When inserting columns/values independently (see: columns component).
  * `.values(elements....)` When inserting columns/values independently.
+
+```js
+c.insert()
+ .into('hobbits')
+ .data({ first_name: 'Frodo', last_name: 'Baggins' })
+ .ttl(60)
+ .then(function (results) {
+    // ...
+ })
+```
 
 ##### Update
 
@@ -191,6 +214,38 @@ Additionally, the following methods:
      * `set(column: String|Column, value)` Updates a column to equal a value, `column = value`. Alias: `setSimple`.
      * `set(column: String|Column, index, value)` Updates an index in a set, `column[index] = value`. Alias: `setIndex`.
 
+```js
+c.update()
+ .table('hobbits')
+ .when('ring_of_power')
+ .where('location', '=', 'erebor')
+ .add('victims', 'Smaug')
+ .set('location', 'Shire')
+ .ttl(60)
+ .then(function (results) {
+    // ...
+ })
+```
+
+##### Delete
+
+The delete builder provides the components listed above:
+
+ * table as `.from`
+ * where (`.where`, `.andWhere`, `.orWhere`)
+ * columns (`.columns`)
+ * conditionals (`.when`)
+ * options (`.timestamp`)
+
+```js
+c.delete()
+ .table('dwarves')
+ .where('name', '=', 'Thorin Oakenshield')
+ .then(function (results) {
+    // ...
+ })
+```
+
 ### Modeling - Still a WIP, not implemented (fully)
 
 #### Collections
@@ -207,7 +262,7 @@ Collections are created by calling `.model(name: String)` on the connection obje
 var User = c.model('UserInfo');
 
 // Or we can explicitly set the table name:
-User.table().setName('user_info');
+User.table.setName('user_info');
 ```
 
 ##### Adding Columns
@@ -216,7 +271,7 @@ The connection also provides all built-in Cassandra types for you: ASCII, BigInt
 
 You can create columns with these like so:
 
-```
+```js
 /**
  * Add columns to the user. You can, of course, have
  * many partition keys and secondary keys. They'll
@@ -232,8 +287,8 @@ User.columns([
 /**
  * You may also add table properties.
  */
-User.tableProperty('COMPACT STORAGE');
-User.tableProperty('compression', { sstable_compression: 'LZ4Compressor' });
+User.table.addProperty('COMPACT STORAGE');
+User.table.addProperty('compression', { sstable_compression: 'LZ4Compressor' });
 ```
 
 Table schema output:
@@ -251,6 +306,17 @@ CREATE TABLE users_info (
 ##### Table Creation, Migration
 
 TBD
+
+##### Querying
+
+Like with connections, you can start a query relative to the model by calling select/update/insert/delete.
+
+```js
+User.select();
+User.update();
+User.insert();
+User.delete();
+```
 
 ##### Lifecycle
 
@@ -280,12 +346,12 @@ User.use(['beforeCreate', 'beforeUpdate'], function (next) {
     var self = this;
     if (this.isDirty('password')) {
         bcrypt.hash(this.password, 8, function (err, hashed) {
-        if (err) {
-            next(err);
-        } else {
-            self.password = hashed;
-            next();
-        }
+            if (err) {
+                next(err);
+            } else {
+                self.password = hashed;
+                next();
+            }
         });
     } else {
         next();
@@ -319,22 +385,22 @@ User.find()
     });
 ```
 
-##### Custom Methods
+##### Custom Methods/Properties
 
 Static methods can be attached to the collection directly, of course:
 
-```
+```js
 User.sayHi = function () {
     console.log('Hi');
 };
 ```
 
-You can also define methods that are present on model instances. 
+You can also define methods or properties that are present on model instances. 
 
 Side note: a conscious decision was made not to provide a means for implementing ES5 getters and setters. Accessors are a controversial design decision at best, and have oft been [called evil](http://www.javaworld.com/article/2073723/core-java/why-getter-and-setter-methods-are-evil.html).
 
-```
-User.method('whoAmI', function () {
+```js
+User.define('whoAmI', function () {
     return this.name;
 });
 
@@ -354,7 +420,7 @@ Models provide several useful methods and attributes you may use.
 
 The _only_ enumerable properties on a model are its attributes. This means you can very easily loop through them, serialize the model to JSON, or what have you. You can likewise set to update:
 
-```
+```js
 var user = User.new();
 user.name = 'Smaug';
 user.emails = ['root@erebor.com'];
@@ -364,7 +430,7 @@ user.emails = ['root@erebor.com'];
 
 Models can be updated with a simple "save" call. This will create the model in the database if it does not exist, or update an existing model. We do updates very intelligently and efficiently using the excellent [flitbit/diff](https://github.com/flitbit/diff) module.
 
-```
+```js
 user.save().then(function (user) {
     // the user model has now been updated!
 });
