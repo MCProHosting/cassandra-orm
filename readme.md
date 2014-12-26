@@ -3,6 +3,15 @@
 
 Node.js ORM for Cassandra 2.1+. Inspired by SQLAlchemy. WIP.
 
+Goals/features:
+
+ * A fluent query builder for interacting directly with the database.
+ * An ORM tailored to leverage Cassandra's performance boons.
+ * An ORM that works how you'd expect and gets out of your way.
+ * Emphasis on providing 100% coverage of common (primarily CRUD) database operations, without having to write any raw query.
+ * A system which lends itself well to automated migrations. (todo: built-in migrations support?)
+ * Promises. Promises everywhere.
+
 ```js
 var Cassandra = require('artisan-cassandra-orm');
 var c = new Cassandra({ contactPoints: ['127.0.0.1'], keyspace: 'middleEarth' });
@@ -182,9 +191,13 @@ Additionally, the following methods:
      * `set(column: String|Column, value)` Updates a column to equal a value, `column = value`. Alias: `setSimple`.
      * `set(column: String|Column, index, value)` Updates an index in a set, `column[index] = value`. Alias: `setIndex`.
 
-### Model
+### Modeling - Still a WIP, not implemented (fully)
 
-> Soon to come...
+#### Collections
+
+##### Creation and Settings
+
+Collections are created by calling `.model(name: String)` on the connection object. 
 
 ```js
 /**
@@ -193,12 +206,175 @@ Additionally, the following methods:
  */ 
 var User = c.model('UserInfo');
 
+// Or we can explicitly set the table name:
+User.table().setName('user_info');
+```
+
+##### Adding Columns
+
+The connection also provides all built-in Cassandra types for you: ASCII, BigInt, BLOB, Boolean, Counter, Decimal, Double, Float, IP, Int, Text, Timestamp, TimeUUID, UUID, VarChar, VarIn, Tuple, List, Map, Set.
+
+You can create columns with these like so:
+
+```
 /**
- * Add columns to the user
+ * Add columns to the user. You can, of course, have
+ * many partition keys and secondary keys. They'll
+ * be added in the order that the columns are defined
+ * in the table.
  */ 
 User.columns([
-    t.Text('userid'),
+    c.Column.Text('userid').partitionKey(),
     t.Set('emails', [t.Text()]),
-    t.Text('name').partitionKey()
+    t.Text('name').compoundKey()
 ]);
+
+/**
+ * You may also add table properties.
+ */
+User.tableProperty('COMPACT STORAGE');
+User.tableProperty('compression', { sstable_compression: 'LZ4Compressor' });
 ```
+
+Table schema output:
+
+```sql
+CREATE TABLE users_info (
+  userid text,
+  emails set<text>,
+  name text,
+  PRIMARY KEY (emails, name)
+) WITH COMPACT STORAGE AND
+  compression={ 'sstable_compression': 'LZ4Compressor' }
+```
+
+##### Table Creation, Migration
+
+TBD
+
+##### Lifecycle
+
+Like Express, lifecycle callbacks are done in the form of middleware. The following callbacks are available:
+
+ * beforeCreate
+ * afterCreate
+ * beforeDelete
+ * afterDelete
+ * beforeUpdate
+ * afterUpdate
+
+The context, `this` for callbacks will be set to the model object. Methods and attributes on the model (see below) will be available. Example:
+
+```js
+User.use('beforeCreate', function (next) {
+    var err = validator.try(this.attributes, rules);
+    if (err) {
+        next(err); // Abort!
+    } else {
+        next(); // We're all good
+    }
+});
+
+// You can pass multiple events in as an array.
+User.use(['beforeCreate', 'beforeUpdate'], function (next) {
+    var self = this;
+    if (this.isDirty('password')) {
+        bcrypt.hash(this.password, 8, function (err, hashed) {
+        if (err) {
+            next(err);
+        } else {
+            self.password = hashed;
+            next();
+        }
+        });
+    } else {
+        next();
+    }
+});
+```
+
+##### Creating & Looking up Models
+
+Models can either be created or looked up. Creating models can be done via `.new()`:
+
+```js
+// Returns a fresh new model!
+var user = User.new();
+// Create a new model already populated with some data.
+var user = User.new({ name: 'Thorin Oakenshield' });
+```
+
+There are several methods to look up models:
+
+ * `.findOne()`: Looks up and resolves to a single model.
+ * `.find()`: Looks up and resolves to an array of models.
+
+Neither method takes arguments directly. Rather, they return a select query builder. So, for example:
+
+```js
+User.find()
+    .where('profession', 'CONTAINS', 'wizard')
+    .then(function (wizards) {
+        // ...
+    });
+```
+
+##### Custom Methods
+
+Static methods can be attached to the collection directly, of course:
+
+```
+User.sayHi = function () {
+    console.log('Hi');
+};
+```
+
+You can also define methods that are present on model instances. 
+
+Side note: a conscious decision was made not to provide a means for implementing ES5 getters and setters. Accessors are a controversial design decision at best, and have oft been [called evil](http://www.javaworld.com/article/2073723/core-java/why-getter-and-setter-methods-are-evil.html).
+
+```
+User.method('whoAmI', function () {
+    return this.name;
+});
+
+User.findOne()
+    .where('name', '=', 'Frodo Baggins')
+    .then(function (frodo) {
+        console.log(frodo.whoAmI());
+        // => Frodo Baggins
+    });
+```
+
+#### Models
+
+Models provide several useful methods and attributes you may use.
+
+##### Attributes
+
+The _only_ enumerable properties on a model are its attributes. This means you can very easily loop through them, serialize the model to JSON, or what have you. You can likewise set to update:
+
+```
+var user = User.new();
+user.name = 'Smaug';
+user.emails = ['root@erebor.com'];
+```
+
+##### Saving/Updating Models
+
+Models can be updated with a simple "save" call. This will create the model in the database if it does not exist, or update an existing model. We do updates very intelligently and efficiently using the excellent [flitbit/diff](https://github.com/flitbit/diff) module.
+
+```
+user.save().then(function (user) {
+    // the user model has now been updated!
+});
+```
+
+##### Utility
+
+ * `.isDirty(column: String|Column) -> Boolean` Returns whether the column has changed since the model was created or synced with the database.
+ * `isSynced() -> Boolean` Returns whether any attributes have changed since the object was last updated from the database.
+ * `.toObject() -> Object` Returns the current model properties as a plain object.
+ * `.toJson() -> String` Converts the current model properties to a string.
+ * `.old` is an object which contains the attributes as they exist in the database.
+ * `.collection` is a reference to the object's parent collection.

@@ -15,6 +15,16 @@ describe('table generation', function () {
             ')');
     });
 
+    it('sets the name', function () {
+        expect(new Table('users')
+            .setName('foo')
+            .addColumn(t.Text('userid'))
+            .toString()
+        ).toBe('CREATE TABLE foo (\r\n' +
+            '  userid text\r\n' +
+            ')');
+    });
+
     it('adds single partition index', function () {
         expect(new Table('users')
             .addColumn(t.Text('userid'))
