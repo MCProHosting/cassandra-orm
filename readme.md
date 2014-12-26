@@ -428,7 +428,11 @@ user.emails = ['root@erebor.com'];
 
 ##### Saving/Updating Models
 
-Models can be updated with a simple "save" call. This will create the model in the database if it does not exist, or update an existing model. We do updates very intelligently and efficiently using the excellent [flitbit/diff](https://github.com/flitbit/diff) module.
+Models can be updated with a simple "save" call. We will create the model in the database if it does not exist, or update an existing model.
+
+Unless "true" is passed as the first parameter, we won't update the model if no properties have been changed.
+
+We do updates very intelligently and efficiently using the excellent [flitbit/diff](https://github.com/flitbit/diff) module.
 
 ```js
 user.save().then(function (user) {
