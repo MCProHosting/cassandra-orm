@@ -26,6 +26,14 @@ describe('collection', function () {
             ')');
     });
 
+    it('publishes columns', function () {
+        var id = t.Text('uuid');
+        var name = t.Text('first_name');
+        collection.columns([id, name]);
+        expect(collection.Uuid).toBe(id);
+        expect(collection.FirstName).toBe(name);
+    });
+
     it('starts select', function () {
         connection.select = jasmine.createSpy('select').and.returnValue(connection);
         connection.from = jasmine.createSpy('from');

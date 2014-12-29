@@ -281,7 +281,7 @@ You can create columns with these like so:
 User.columns([
     c.Column.Text('userid').partitionKey(),
     t.Set('emails', [t.Text()]),
-    t.Text('name').compoundKey()
+    t.Text('last_name').compoundKey()
 ]);
 
 /**
@@ -297,10 +297,18 @@ Table schema output:
 CREATE TABLE users_info (
   userid text,
   emails set<text>,
-  name text,
-  PRIMARY KEY (emails, name)
+  last_name text,
+  PRIMARY KEY (emails, last_name)
 ) WITH COMPACT STORAGE AND
   compression={ 'sstable_compression': 'LZ4Compressor' }
+```
+
+Columns are then converted to StudlyCase and published on the collection, for use in querying later. In the above example, the following columns would be made available:
+
+```
+User.Userid
+User.Emails
+User.LastName
 ```
 
 ##### Table Creation, Migration
@@ -379,7 +387,7 @@ Neither method takes arguments directly. Rather, they return a select query buil
 
 ```js
 User.find()
-    .where('profession', 'CONTAINS', 'wizard')
+    .where(User.Profession, 'CONTAINS', 'wizard')
     .then(function (wizards) {
         // ...
     });
@@ -405,7 +413,7 @@ User.define('whoAmI', function () {
 });
 
 User.findOne()
-    .where('name', '=', 'Frodo Baggins')
+    .where(User.Name, '=', 'Frodo Baggins')
     .then(function (frodo) {
         console.log(frodo.whoAmI());
         // => Frodo Baggins
