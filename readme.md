@@ -378,18 +378,17 @@ var user = User.new();
 var user = User.new({ name: 'Thorin Oakenshield' });
 ```
 
-There are several methods to look up models:
-
- * `.findOne()`: Looks up and resolves to a single model.
- * `.find()`: Looks up and resolves to an array of models.
+To look up models, simply start a "select" query on the collection. It will be resolved to an array of models.
 
 Neither method takes arguments directly. Rather, they return a select query builder. So, for example:
 
 ```js
-User.find()
+User.select()
     .where(User.Profession, 'CONTAINS', 'wizard')
-    .then(function (wizards) {
-        // ...
+    .limit(1)
+    .then(function (wizards, results) {
+        // wizards is an array of user models.
+        // results is the raw output from the datastax driver
     });
 ```
 

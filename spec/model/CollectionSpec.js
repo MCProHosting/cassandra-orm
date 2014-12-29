@@ -1,12 +1,13 @@
 var t = require('../../lib/cql/types');
+var Connection = require('../fake-connection');
 var Collection = require('../../lib/model/collection');
 
 describe('collection', function () {
     var collection, connection;
 
     beforeEach(function () {
-        connection = {};
-        collection = new Collection(connection, 'UsersStuff');
+        connection = Connection();
+        collection = connection.Collection('UsersStuff');
     });
 
     it('generates the table', function () {
@@ -34,35 +35,49 @@ describe('collection', function () {
         expect(collection.FirstName).toBe(name);
     });
 
-    it('starts select', function () {
-        connection.select = jasmine.createSpy('select').and.returnValue(connection);
-        connection.from = jasmine.createSpy('from');
-        collection.select();
-        expect(connection.select).toHaveBeenCalled();
-        expect(connection.from).toHaveBeenCalledWith('users_stuff');
+    it('populates models on select', function (done) {
+        connection.resolvedQuery = { rows: [{ a: 1 }, { b: 1 }], meta: 'data'};
+        collection.select().then(function (results) {
+            expect(results.length).toBe(2);
+            expect(results[0].isSynced()).toBe(true);
+            expect(results.meta).toBe('data');
+            done();
+        });
     });
 
-    it('starts insert', function () {
-        connection.insert = jasmine.createSpy('insert').and.returnValue(connection);
-        connection.into = jasmine.createSpy('into');
-        collection.insert();
-        expect(connection.insert).toHaveBeenCalled();
-        expect(connection.into).toHaveBeenCalledWith('users_stuff');
+    it('selects', function (done) {
+        collection.select().then(function () {
+            expect(connection.queryLog).toEqual([
+                ['SELECT * FROM users_stuff;', [], {}]
+            ]);
+            done();
+        });
     });
 
-    it('starts update', function () {
-        connection.update = jasmine.createSpy('update').and.returnValue(connection);
-        connection.table = jasmine.createSpy('table');
-        collection.update();
-        expect(connection.update).toHaveBeenCalled();
-        expect(connection.table).toHaveBeenCalledWith('users_stuff');
+    it('inserts', function (done) {
+        collection.insert().data({ a: 'b' }).then(function () {
+            expect(connection.queryLog).toEqual([
+                ['INSERT INTO users_stuff (a) VALUES (?);', ['b'], {}]
+            ]);
+            done();
+        });
     });
 
-    it('starts delete', function () {
-        connection.delete = jasmine.createSpy('delete').and.returnValue(connection);
-        connection.from = jasmine.createSpy('from');
-        collection.delete();
-        expect(connection.delete).toHaveBeenCalled();
-        expect(connection.from).toHaveBeenCalledWith('users_stuff');
+    it('updates', function (done) {
+        collection.update().set('a', 'b').then(function () {
+            expect(connection.queryLog).toEqual([
+                ['UPDATE users_stuff SET a = ?;', ['b'], {}]
+            ]);
+            done();
+        });
+    });
+
+    it('deletes', function (done) {
+        collection.delete().where('a', '=', 'b').then(function () {
+            expect(connection.queryLog).toEqual([
+                ['DELETE FROM users_stuff WHERE a = ?;', ['b'], {}]
+            ]);
+            done();
+        });
     });
 });
