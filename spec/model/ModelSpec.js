@@ -1,5 +1,3 @@
-var Model = require('../../lib/model/model');
-var Bluebird = require('bluebird');
 var t = require('../../lib/cql/types');
 var Connection = require('../fake-connection');
 
@@ -48,7 +46,6 @@ describe('Model', function () {
     });
 
     describe('saving', function () {
-
         it('saves as new', function (done) {
             model.reset();
             model.a = 1;
@@ -83,6 +80,74 @@ describe('Model', function () {
                 expect(connection.queryLog).toEqual([
                     ['DELETE FROM foo WHERE a = ?;', [1], {}]
                 ]);
+                done();
+            });
+        });
+    });
+
+    describe('middleware', function () {
+        it('adds, runs single', function (done) {
+            var spy = jasmine.createSpy('beforeUpdate');
+            collection.use('beforeUpdate', function (next) {
+                spy();
+                next();
+            });
+
+            model.save(true).then(function () {
+                expect(spy).toHaveBeenCalled();
+                done();
+            });
+        });
+        it('catches error in cb', function (done) {
+            collection.use('beforeUpdate', function (next) {
+                next('err');
+            });
+
+            model.save(true).catch(function (e) {
+                expect(e).toBe('err');
+                done();
+            });
+        });
+        it('catches error when thrown', function (done) {
+            collection.use('beforeUpdate', function (next) {
+                throw 'err';
+            });
+
+            model.save(true).catch(function (e) {
+                expect(e).toBe('err');
+                done();
+            });
+        });
+        it('handles multiple middleware', function (done) {
+            var calls = [];
+            collection.use('beforeUpdate', function (next) {
+                calls.push('a');
+                next();
+            });
+            collection.use('beforeUpdate', function (next) {
+                calls.push('b');
+                next();
+            });
+            collection.use('afterUpdate', function (next) {
+                calls.push('c');
+                next();
+            });
+
+            model.save(true).then(function () {
+                expect(calls).toEqual(['a', 'b', 'c']);
+                done();
+            });
+        });
+        it('can define multiple at once', function (done) {
+            var spy = jasmine.createSpy('up');
+            collection.use(['beforeUpdate', 'afterUpdate'], function (next) {
+                spy();
+                next();
+            });
+
+            model.save(true).then(function () {
+                expect(spy).toHaveBeenCalled();
+                expect(spy.calls.count()).toBe(2);
                 done();
             });
         });

@@ -337,13 +337,16 @@ Like Express, lifecycle callbacks are done in the form of middleware. The follow
  * beforeUpdate
  * afterUpdate
 
+> Note: these are only called when working with models, not when querying directly on the collection (e.g., it won't run on User.delete().where('a', '=' ,'b'))
+
 The context, `this` for callbacks will be set to the model object. Methods and attributes on the model (see below) will be available. Example:
 
 ```js
 User.use('beforeCreate', function (next) {
     var err = validator.try(this.attributes, rules);
     if (err) {
-        next(err); // Abort!
+        next(err);
+        // or throw err;
     } else {
         next(); // We're all good
     }
@@ -355,7 +358,7 @@ User.use(['beforeCreate', 'beforeUpdate'], function (next) {
     if (this.isDirty('password')) {
         bcrypt.hash(this.password, 8, function (err, hashed) {
             if (err) {
-                next(err);
+                throw err;
             } else {
                 self.password = hashed;
                 next();
