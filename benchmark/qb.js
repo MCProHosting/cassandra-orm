@@ -3,8 +3,12 @@
 var builders = require('../lib/cql/builders');
 var t = require('../lib/cql/types');
 var Raw = require('../lib/cql/stmt/raw');
+var Bluebird = require('bluebird');
 
 new (require('benchmark').Suite)()
+    .add('Just for kicks: bluebird', function () {
+        Bluebird.resolve(true).then(function () { return "hi"; });
+    })
     .add('Select statement builder', function () {
         builders.select()
             .columns('a', 'b')
