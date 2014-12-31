@@ -1,8 +1,8 @@
 // To use, `npm install benchmark microtime`
 
-var builders = require('./lib/cql/builders');
-var t = require('./lib/cql/types');
-var Raw = require('./lib/cql/stmt/raw');
+var builders = require('../lib/cql/builders');
+var t = require('../lib/cql/types');
+var Raw = require('../lib/cql/stmt/raw');
 
 new (require('benchmark').Suite)()
     .add('Select statement builder', function () {
