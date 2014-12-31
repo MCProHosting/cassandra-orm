@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/MCProHosting/artisan-cassandra-orm",
   "devDependencies": {
+    "benchmark": "^1.0.0",
     "jasmine-node": "~2.0.0",
     "jshint": "^2.5.11"
   },
