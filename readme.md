@@ -344,7 +344,7 @@ GoldCoins.belongsTo(Dragon).from(GoldCoins.Owner).to(Dragon.Uuid);
 // don't define both. We do that automatically for you.
 
 Dragon.has(Weakness).from(Dragon.Uuid).to(Weakness.Dragon)
-// One-to-one relationship
+// One-to-one relationship.
 ```
 
 After finding a model, you can look up related models.
@@ -359,17 +359,21 @@ dragon.goldCoins; // => array of GoldCoins models
 // Likewise, you can go backwards.
 GoldCoins.with(Dragon).select().then( ... );
 coin.dragon; // => a Dragon instance
+```
 
-// You can attach or detach models from each other.
-// In "to-many" relations, detach will remove the
+You can attach and detach models to the relation. Keep in mind that these methods are called in the relation itself, whose first letter is capitalized!
+
+The reason it's access in this way, rather than methods being dynamically attached to the value, is that when the value is null or undefined we cannot attach methods, so it would be awfully inconsistent.
+
+```js
+
+// You can attach or detach models from each other. NOTE: For method the name is StudlyCase In "to-many" relations, detach will remove the
 // model from the relation list and attach will add.
-dragon.goldCoins.detach(coin);
-dragon.goldCoins.attach(coin);
-// In "to-one", detach will delete the relation and
-// attach will set and overwrite an existing relation.
-coin.dragon.detach(dragon); // coin.dragon will be undefined.
-coin.dragon.attach(dragon1); // Now coin.dragon is dragon1
-coin.dragon.attach(dragon2); // We overwrite, so coin.dragon is now dragon2
+dragon.GoldCoins.detach(coin);
+dragon.GoldCoins.attach(coin);
+
+// Don't forget to save!
+coin.save();
 ```
 
 ##### Lifecycle
