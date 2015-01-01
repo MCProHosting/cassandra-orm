@@ -10,6 +10,7 @@ Goals/features:
  * An ORM that works how you'd expect and gets out of your way.
  * Emphasis on providing 100% coverage of common (primarily CRUD) database operations, without having to write any raw query.
  * A system which lends itself well to automated migrations. (todo: built-in migrations support?)
+ * Extremely performant, low overhead. Queries are built faster than Bluebird promises can be resolved.
  * Promises. Promises everywhere.
 
 ```js
@@ -263,6 +264,10 @@ var User = c.model('UserInfo');
 
 // Or we can explicitly set the table name:
 User.table.setName('user_info');
+
+// To pluralize we normally just add an "s" on the
+// end, but you explicitly set its plural form like:
+User.plural('UserInfoz');
 ```
 
 ##### Adding Columns
@@ -324,6 +329,47 @@ User.select();
 User.update();
 User.insert();
 User.delete();
+```
+
+##### Defining and Using Relations
+
+Relations can be defined very elegantly on any collection. Note: these work, but keep in mind that in many cases it may be better to denormalize your data rather than using relations.
+
+```js
+Dragon.hasMany(GoldCoin).from(Dragon.Uuid).to(GoldCoins.Owner);
+// Says that a Dragon has many GoldCoins, via dragon.uuid <--> goldcoins.owner
+
+GoldCoins.belongsTo(Dragon).from(GoldCoins.Owner).to(Dragon.Uuid);
+// Says the same thing! Note: you only need to do one of these,
+// don't define both. We do that automatically for you.
+
+Dragon.has(Weakness).from(Dragon.Uuid).to(Weakness.Dragon)
+// One-to-one relationship
+```
+
+After finding a model, you can look up related models.
+
+```js
+// You can load a model "with" owned models.
+Dragon.with(GoldCoins).select().then( ... );
+
+// You can then access that property
+dragon.goldCoins; // => array of GoldCoins models
+
+// Likewise, you can go backwards.
+GoldCoins.with(Dragon).select().then( ... );
+coin.dragon; // => a Dragon instance
+
+// You can attach or detach models from each other.
+// In "to-many" relations, detach will remove the
+// model from the relation list and attach will add.
+dragon.goldCoins.detach(coin);
+dragon.goldCoins.attach(coin);
+// In "to-one", detach will delete the relation and
+// attach will set and overwrite an existing relation.
+coin.dragon.detach(dragon); // coin.dragon will be undefined.
+coin.dragon.attach(dragon1); // Now coin.dragon is dragon1
+coin.dragon.attach(dragon2); // We overwrite, so coin.dragon is now dragon2
 ```
 
 ##### Lifecycle
@@ -442,8 +488,6 @@ Models can be updated with a simple "save" call. We will create the model in the
 
 Unless "true" is passed as the first parameter, we won't update the model if no properties have been changed.
 
-We do updates very intelligently and efficiently using the excellent [flitbit/diff](https://github.com/flitbit/diff) module.
-
 ```js
 user.save().then(function (user) {
     // the user model has now been updated!
@@ -458,3 +502,4 @@ user.save().then(function (user) {
  * `.toJson() -> String` Converts the current model properties to a string.
  * `.old` is an object which contains the attributes as they exist in the database.
  * `.collection` is a reference to the object's parent collection.
+
