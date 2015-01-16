@@ -19,6 +19,14 @@ describe('Model', function () {
         expect(Object.keys(model)).toEqual(['a', 'b']);
     });
 
+    it('extends works', function () {
+        expect(model.toObject()).toEqual({ a: 1, b: [2, 3] });
+        model.extend({ a: 2, b : 3});
+        expect(model.toObject()).toEqual({ a: 2, b: 3 });
+        model.extend({ a: 5 });
+        expect(model.toObject()).toEqual({ a: 5, b: 3 });
+    });
+
     it('clones old properties', function () {
         model.a = 2;
         model.b.push(4);

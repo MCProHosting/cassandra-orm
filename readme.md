@@ -3,6 +3,8 @@
 
 Node.js ORM for Cassandra 2.1+. Inspired by SQLAlchemy. WIP.
 
+> **Status**: We're rolling out the ORM in production in the coming days/weeks. We plan to leave it in its current state for now, with some tweaks and bugfixes perhaps. Later on we plan to develop eloquent support for things like relations and denormalization, as we see common patterns that arise as we use this ORM.
+
 Goals/features:
 
  * A fluent query builder for interacting directly with the database.
@@ -37,7 +39,7 @@ var c = new Cassandra({ contactPoints: ['127.0.0.1'], keyspace: 'middleEarth' })
 
 We promisify and provide some additional methods atop the driver. The following method/properties are available:
 
- * `.execute(query: String[, params: Array[, options: Object]]) -> Promise` 
+ * `.execute(query: String[, params: Array[, options: Object]]) -> Promise`
  * `.batch(queries: Array[, options: Object]]) -> Promise`
  * `.shutdown() -> Promise`
  * `.connect([options: Object]) -> Promise`
@@ -97,7 +99,7 @@ Available on Select, Insert, Delete, and Update.
  * `.orWhere`. Adds an "OR" condition to the builder.
 
 Both these methods are used in the same way.
- 
+
  * If passed three arguments, it expects them to be `column, operator, value`. The value will be parameterized _unless_ a Raw string is passed.
  * If passed a function as the first an only parameter, it creates a where grouping. For example:
 
@@ -253,13 +255,13 @@ c.delete()
 
 ##### Creation and Settings
 
-Collections are created by calling `.model(name: String)` on the connection object. 
+Collections are created by calling `.model(name: String)` on the connection object.
 
 ```js
 /**
  * Create a new model. Its name will be converted to
  * snake_case for the table name (it will be `users_info`)
- */ 
+ */
 var User = c.model('UserInfo');
 
 // Or we can explicitly set the table name:
@@ -282,7 +284,7 @@ You can create columns with these like so:
  * many partition keys and secondary keys. They'll
  * be added in the order that the columns are defined
  * in the table.
- */ 
+ */
 User.columns([
     c.Column.Text('userid').partitionKey(),
     t.Set('emails', [t.Text()]),
@@ -451,7 +453,7 @@ User.sayHi = function () {
 };
 ```
 
-You can also define methods or properties that are present on model instances. 
+You can also define methods or properties that are present on model instances.
 
 Side note: a conscious decision was made not to provide a means for implementing ES5 getters and setters. Accessors are a controversial design decision at best, and have oft been [called evil](http://www.javaworld.com/article/2073723/core-java/why-getter-and-setter-methods-are-evil.html).
 
@@ -502,4 +504,3 @@ user.save().then(function (user) {
  * `.toJson() -> String` Converts the current model properties to a string.
  * `.old` is an object which contains the attributes as they exist in the database.
  * `.collection` is a reference to the object's parent collection.
-

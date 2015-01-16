@@ -1,8 +1,8 @@
 {
   "name": "artisan-cassandra-orm",
-  "version": "0.0.3",
-  "description": "Fun and friendly data validation.",
-  "main": "index.js",
+  "version": "0.0.1",
+  "description": "Node.js ORM for Cassandra 2.1+. Inspired by SQLAlchemy. WIP.",
+  "main": "lib/connection.js",
   "scripts": {
     "test": "node node_modules/jasmine-node/bin/jasmine-node spec && node node_modules/jshint/bin/jshint lib"
   },
