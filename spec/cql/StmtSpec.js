@@ -7,6 +7,15 @@ var Tuple = require('../../lib/cql/stmt/termTuple');
 var Raw = require('../../lib/cql/stmt/raw');
 var t = require('../../lib/cql/types');
 
+describe('term tuple', function () {
+    it('handles undefined with null', function () {
+        expect(new Tuple(1, false, undefined).parameterize()).toEqual([
+            [1, false],
+            '(?, ?, NULL)'
+        ]);
+    });
+});
+
 describe('where', function () {
     it('takes basic raw', function () {
         expect(new Where()
