@@ -8,7 +8,7 @@ describe('Model', function () {
         collection = connection.Collection('foo');
         collection.columns([
             t.Int('a').partitionKey(),
-            t.List('b')
+            t.List('b', ['int'])
         ]);
 
         model = collection.new();
@@ -21,10 +21,15 @@ describe('Model', function () {
 
     it('extends works', function () {
         expect(model.toObject()).toEqual({ a: 1, b: [2, 3] });
-        model.extend({ a: 2, b : 3});
-        expect(model.toObject()).toEqual({ a: 2, b: 3 });
+        model.extend({ a: 2, b : [3]});
+        expect(model.toObject()).toEqual({ a: 2, b: [3] });
         model.extend({ a: 5 });
-        expect(model.toObject()).toEqual({ a: 5, b: 3 });
+        expect(model.toObject()).toEqual({ a: 5, b: [3] });
+    });
+
+    it('typecasts', function () {
+        model.a = '2';
+        expect(model.toObject()).toEqual({ a: 2, b: [2, 3] });
     });
 
     it('clones old properties', function () {

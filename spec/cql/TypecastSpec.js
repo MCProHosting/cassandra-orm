@@ -1,5 +1,5 @@
 var errors = require('../../lib/errors');
-var typecast = require('../../lib/cql/typecast');
+var typecast = require('../../lib/cql/typecast/cast');
 var columns = require('../../lib/cql/types');
 
 describe('single typecasts', function () {
