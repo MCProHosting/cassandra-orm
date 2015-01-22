@@ -25,6 +25,17 @@ describe('basic column', function () {
     });
 });
 
+describe('generators', function () {
+    it('should generate when function', function () {
+        expect(typeof(new BasicColumn(null, 'timeuuid').generate())).toBe('string');
+    });
+    it('should throw an error if cant generator', function () {
+        expect(function () {
+            new BasicColumn(null, 'Foo').generate();
+        }).toThrow();
+    });
+});
+
 describe('collection column', function () {
     it('should work with single basic type', function () {
         var column = new CollectionColumn('emails', 'list', [new BasicColumn(null, 'text')]);
