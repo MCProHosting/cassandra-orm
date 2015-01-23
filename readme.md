@@ -455,8 +455,6 @@ User.sayHi = function () {
 
 You can also define methods or properties that are present on model instances.
 
-Side note: a conscious decision was made not to provide a means for implementing ES5 getters and setters. Accessors are a controversial design decision at best, and have oft been [called evil](http://www.javaworld.com/article/2073723/core-java/why-getter-and-setter-methods-are-evil.html).
-
 ```js
 User.define('whoAmI', function () {
     return this.name;
@@ -468,6 +466,31 @@ User.findOne()
         console.log(frodo.whoAmI());
         // => Frodo Baggins
     });
+```
+
+##### Getters/Setters
+
+You can defined getters and setters like so:
+
+```js
+// Say we're storing user points in the database. When we "get" the
+// points we'd rather return a string like "<x> Points"
+User.getter('points', function (points) {
+    return points + ' Points';
+});
+
+// We'd also need a setter to trim off the " Points" before we
+// set the value!
+User.setter('points', function (points) {
+    return parseInt(points.replace(' Points', ''), 10);
+});
+
+// Note that, when calling toObject, you'll get the data passed
+// through the getters
+User.toObject(); // => { points: '42 Points' }
+// But if you don't want this to happen, pass "false" as its
+// first argument.
+User.toObject(false); // => { points: 42 }
 ```
 
 #### Models

@@ -170,4 +170,47 @@ describe('Model', function () {
             });
         });
     });
+
+    describe('getters and setters', function () {
+        it('updates value without setter', function () {
+            model.a = 9;
+            expect(model.a).toBe(9);
+        });
+        it('works with setter alone', function () {
+            model.setters.a = function (value) {
+                return value + 'c';
+            };
+            model.sync({ a: 'a' });
+            model.a = 'b';
+            expect(model.a).toBe('bc');
+        });
+        it('works with getter alone', function () {
+            model.getters.a = function (value) {
+                return value + 'd';
+            };
+            model.sync({ a: 'a' });
+            model.a = 'b';
+            expect(model.a).toBe('bd');
+        });
+        it('works with both getter and setter', function () {
+            model.setters.a = function (value) {
+                return value + 'c';
+            };
+            model.getters.a = function (value) {
+                return value + 'd';
+            };
+            model.sync({ a: 'a' });
+            model.a = 'b';
+            expect(model.a).toBe('bcd');
+        });
+        it('toObject functions correctly', function () {
+            expect(model.toObject()).toEqual({ a: 1, b: [2, 3] });
+            model.getters.a = function (value) {
+                return value + 2;
+            };
+            model.sync({ a: 1 });
+            expect(model.toObject()).toEqual({ a: 3, b: [2, 3] });
+            expect(model.toObject(false)).toEqual({ a: 1, b: [2, 3] });
+        });
+    });
 });
