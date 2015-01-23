@@ -50,6 +50,11 @@ describe('Model', function () {
         expect(model.isSynced()).toBe(false);
     });
 
+    it('sync fixes casing', function () {
+        model.sync({ A: 3 });
+        expect(model.a).toBe(3);
+    });
+
     it('gets raw object', function () {
         expect(model.toObject()).toEqual({ a: 1, b: [2, 3] });
     });
