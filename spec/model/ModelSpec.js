@@ -35,7 +35,7 @@ describe('Model', function () {
     it('clones old properties', function () {
         model.a = 2;
         model.b.push(4);
-        expect(model.old).toEqual({ a: 1, b: [2, 3] });
+        expect(model._.old).toEqual({ a: 1, b: [2, 3] });
     });
 
     it('works with isDirty', function () {
@@ -181,7 +181,7 @@ describe('Model', function () {
             expect(model.a).toBe(9);
         });
         it('works with setter alone', function () {
-            model.setters.a = function (value) {
+            model._.setters.a = function (value) {
                 return value + 'c';
             };
             model.bindAccessors();
@@ -189,7 +189,7 @@ describe('Model', function () {
             expect(model.a).toBe('bc');
         });
         it('works with getter alone', function () {
-            model.getters.a = function (value) {
+            model._.getters.a = function (value) {
                 return value + 'd';
             };
             model.bindAccessors();
@@ -197,10 +197,10 @@ describe('Model', function () {
             expect(model.a).toBe('bd');
         });
         it('works with both getter and setter', function () {
-            model.setters.a = function (value) {
+            model._.setters.a = function (value) {
                 return value + 'c';
             };
-            model.getters.a = function (value) {
+            model._.getters.a = function (value) {
                 return value + 'd';
             };
             model.bindAccessors();
@@ -209,7 +209,7 @@ describe('Model', function () {
         });
         it('toObject functions correctly', function () {
             expect(model.toObject()).toEqual({ a: 1, b: [2, 3] });
-            model.getters.a = function (value) {
+            model._.getters.a = function (value) {
                 return value + 2;
             };
             model.bindAccessors();
