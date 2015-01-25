@@ -172,6 +172,10 @@ describe('Model', function () {
     });
 
     describe('getters and setters', function () {
+        it('works with new models', function () {
+            model = collection.new().extend({ a: 9 });
+            expect(model.isSynced()).toBe(false);
+        });
         it('updates value without setter', function () {
             model.a = 9;
             expect(model.a).toBe(9);
@@ -180,7 +184,7 @@ describe('Model', function () {
             model.setters.a = function (value) {
                 return value + 'c';
             };
-            model.sync({ a: 'a' });
+            model.bindAccessors();
             model.a = 'b';
             expect(model.a).toBe('bc');
         });
@@ -188,7 +192,7 @@ describe('Model', function () {
             model.getters.a = function (value) {
                 return value + 'd';
             };
-            model.sync({ a: 'a' });
+            model.bindAccessors();
             model.a = 'b';
             expect(model.a).toBe('bd');
         });
@@ -199,7 +203,7 @@ describe('Model', function () {
             model.getters.a = function (value) {
                 return value + 'd';
             };
-            model.sync({ a: 'a' });
+            model.bindAccessors();
             model.a = 'b';
             expect(model.a).toBe('bcd');
         });
@@ -208,7 +212,7 @@ describe('Model', function () {
             model.getters.a = function (value) {
                 return value + 2;
             };
-            model.sync({ a: 1 });
+            model.bindAccessors();
             expect(model.toObject()).toEqual({ a: 3, b: [2, 3] });
             expect(model.toObject(false)).toEqual({ a: 1, b: [2, 3] });
         });
