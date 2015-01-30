@@ -46,6 +46,27 @@ We promisify and provide some additional methods atop the driver. The following 
  * `getReplicas`, `stream`, and `eachRow` are passed verbatim to the connection object.
  * `.client` is the underlying Datastax client.
 
+
+#### Debugging
+
+The connection is an EventEmitter, and you can listen for queries on it. For instance, this will log queries to the stdout when the environment isn't production:
+
+```
+if (process.NODE_ENV !== 'production') {
+    connection.on('query', function (query, parameters) {
+        console.log(query);
+        console.log(parameters);
+    });
+}
+
+// Later ...
+connection.execute('select * from hobbits where last_name = ?;', ['baggins']);
+
+// Console:
+// => select * from hobbits where last_name = ?;
+// => ['baggins']
+```
+
 ### Query Builder
 
 The query builder is at the core of the ORM. Although it is preferable to interact via models, you can create a query builder directly by calling `.select()`, `.insert()`, `.delete()`, and `.update()` on a connection.

@@ -43,6 +43,17 @@ describe('connection', function () {
                     ]);
                 }).then(done);
             });
+
+            it('is an eventemitter', function (done) {
+                var emitted = jasmine.createSpy();
+                connection.then(function () {
+                    this.on('query', emitted);
+                    return this.execute('select * from users;', [], {})
+                }).then(function () {
+                    expect(emitted).toHaveBeenCalledWith('select * from users;', [], { prepare: true });
+                    done();
+                });
+            });
         });
     }
 
