@@ -12,7 +12,7 @@ describe('table generation', function () {
             '  userid text,\r\n' +
             '  emails set<text>,\r\n' +
             '  name text\r\n' +
-            ')');
+            ');');
     });
 
     it('sets the name', function () {
@@ -22,10 +22,10 @@ describe('table generation', function () {
             .toString()
         ).toBe('CREATE TABLE foo (\r\n' +
             '  userid text\r\n' +
-            ')');
+            ');');
     });
 
-    it('adds single partition index', function () {
+    it('adds single partition key', function () {
         expect(new Table('users')
             .addColumn(t.Text('userid'))
             .addColumn(t.Set('emails', [t.Text()]))
@@ -36,11 +36,11 @@ describe('table generation', function () {
             '  userid text,\r\n' +
             '  emails set<text>,\r\n' +
             '  name text,\r\n' +
-            '  PRIMARY KEY (name)\r\n'+
-            ')');
+            '  PRIMARY KEY (name)\r\n' +
+            ');');
     });
 
-    it('adds multiple partition indexes', function () {
+    it('adds multiple partition keys', function () {
         expect(new Table('users')
             .addColumn(t.Text('userid'))
             .addColumn(t.Set('emails', [t.Text()]))
@@ -52,11 +52,11 @@ describe('table generation', function () {
             '  userid text,\r\n' +
             '  emails set<text>,\r\n' +
             '  name text,\r\n' +
-            '  PRIMARY KEY ((name, userid))\r\n'+
-            ')');
+            '  PRIMARY KEY ((name, userid))\r\n' +
+            ');');
     });
 
-    it('adds compound index', function () {
+    it('adds compound key', function () {
         expect(new Table('users')
             .addColumn(t.Text('userid'))
             .addColumn(t.Set('emails', [t.Text()]))
@@ -68,8 +68,23 @@ describe('table generation', function () {
             '  userid text,\r\n' +
             '  emails set<text>,\r\n' +
             '  name text,\r\n' +
-            '  PRIMARY KEY (name, userid)\r\n'+
-            ')');
+            '  PRIMARY KEY (name, userid)\r\n' +
+            ');');
+    });
+
+    it('adds column indexing', function () {
+        expect(new Table('users')
+            .addColumn(t.Text('userid').index().column)
+            .addColumn(t.Set('emails', [t.Text()]).index('asdf').column)
+            .addColumn(t.Text('name'))
+            .toString()
+        ).toBe('CREATE TABLE users (\r\n' +
+            '  userid text,\r\n' +
+            '  emails set<text>,\r\n' +
+            '  name text\r\n' +
+            ');\r\n' +
+            'CREATE INDEX ON users (userid);\r\n' +
+            'CREATE INDEX asdf ON users (emails);');
     });
 
     it('adds table properties', function () {
@@ -87,7 +102,7 @@ describe('table generation', function () {
             '  compression={ \'sstable_compression\': \'LZ4Compressor\' } AND\r\n'+
             '  caching=\'{"keys":"ALL","rows_per_partition":"NONE"}\' AND\r\n'+
             '  comment=\'Hello World\' AND\r\n'+
-            '  gc_grace_seconds=864000');
+            '  gc_grace_seconds=864000;');
     });
 });
 

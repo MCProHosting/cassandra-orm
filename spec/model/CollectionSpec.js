@@ -13,7 +13,7 @@ describe('collection', function () {
     it('generates the table', function () {
         expect(collection
             .columns([
-                t.Text('userid'),
+                t.Text('userid').index(),
                 t.Set('emails', [t.Text()]),
                 t.Text('name').partitionKey()
             ])
@@ -23,8 +23,9 @@ describe('collection', function () {
             '  userid text,\r\n' +
             '  emails set<text>,\r\n' +
             '  name text,\r\n' +
-            '  PRIMARY KEY (name)\r\n'+
-            ')');
+            '  PRIMARY KEY (name)\r\n' +
+            ');\r\n' +
+            'CREATE INDEX ON users_stuff (userid);');
     });
 
     it('publishes columns', function () {

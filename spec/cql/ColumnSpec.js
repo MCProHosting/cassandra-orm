@@ -17,11 +17,30 @@ describe('basic column', function () {
         column.partitionKey();
         expect(column.isKey).toEqual({ partition: true, compound: false });
     });
-    it('sets compount keying', function () {
+    it('sets compound keying', function () {
         var column = new BasicColumn('name', 'text');
         expect(column.isKey).toEqual({ partition: false, compound: false });
         column.compoundKey();
         expect(column.isKey).toEqual({ partition: false, compound: true });
+    });
+});
+
+describe('indexing', function () {
+    it('works basically', function () {
+        expect(new BasicColumn('name', 'text').index().toString('tbl')).toBe('CREATE INDEX ON tbl (name);');
+    });
+    it('allows naming of indexes', function () {
+        expect(new BasicColumn('name', 'text').index('a').toString('tbl')).toBe('CREATE INDEX a ON tbl (name);');
+    });
+    it('allows specifying of class name', function () {
+        expect(
+            new BasicColumn('name', 'text').index().using('a').toString('tbl')
+        ).toBe('CREATE INDEX ON tbl (name) USING \'a\';');
+    });
+    it('allows specifying of options', function () {
+        expect(
+            new BasicColumn('name', 'text').index().options({ a: 'b' }).toString('tbl')
+        ).toBe('CREATE INDEX ON tbl (name) WITH OPTIONS = { \'a\': \'b\' };');
     });
 });
 
