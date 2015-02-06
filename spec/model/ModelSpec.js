@@ -79,6 +79,26 @@ describe('Model', function () {
             });
         });
 
+        it('doesnt save when synced', function (done) {
+            model.save().then(function () {
+                expect(connection.queryLog).toEqual([]);
+                done();
+            });
+        });
+
+        it('applies options', function (done) {
+            model.reset();
+            model.a = 1;
+            model.b = [2, 3];
+
+            model.save({ ttl: 30 }).then(function () {
+                expect(connection.queryLog).toEqual([
+                    ['INSERT INTO foo (a, b) VALUES (?, ?) USING TTL 30;', [1, [2, 3]], {}]
+                ]);
+                done();
+            });
+        });
+
         it('updates existing', function (done) {
             model.a = 2;
             model.b = [2, 3, 4];
