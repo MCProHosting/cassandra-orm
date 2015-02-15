@@ -60,6 +60,13 @@ describe('diff', function () {
             diff(query, column, [], []);
             expect(calls).toEqual([]);
         });
+        it('doesnt break on nulls', function () {
+            diff(query, column, null, [1]);
+            expect(calls).toEqual([['setSimple', column, [1]]]);
+            calls = [];
+            diff(query, column, [1], null);
+            expect(calls).toEqual([['setSimple', column, null]]);
+        });
     });
 
     describe('lists', function () {
@@ -106,6 +113,13 @@ describe('diff', function () {
             diff(query, column, [], []);
             expect(calls).toEqual([]);
         });
+        it('doesnt break on nulls', function () {
+            diff(query, column, null, [1]);
+            expect(calls).toEqual([['setSimple', column, [1]]]);
+            calls = [];
+            diff(query, column, [1], null);
+            expect(calls).toEqual([['setSimple', column, null]]);
+        });
     });
 
     describe('sets', function () {
@@ -126,6 +140,13 @@ describe('diff', function () {
             diff(query, column, { a: 1, b: 2 }, { a: 1, b: 2 });
             expect(calls).toEqual([]);
         });
+        it('doesnt break on nulls', function () {
+            diff(query, column, null, { a: 1 });
+            expect(calls).toEqual([['setSimple', column, { a: 1}]]);
+            calls = [];
+            diff(query, column, { a: 1 }, null);
+            expect(calls).toEqual([['setSimple', column, null]]);
+        });
     });
     describe('date', function () {
         it('doesnt change same', function () {
@@ -137,6 +158,14 @@ describe('diff', function () {
             var column = t.Timestamp('a');
             diff(query, column, new Date(0), new Date(1));
             expect(calls).toEqual([['setSimple', column, new Date(1)]]);
+        });
+        it('doesnt break on nulls', function () {
+            var column = t.Timestamp('a');
+            diff(query, column, new Date(0), null);
+            expect(calls).toEqual([['setSimple', column, null]]);
+            calls = [];
+            diff(query, column, null, new Date(0));
+            expect(calls).toEqual([['setSimple', column, new Date(0)]]);
         });
     });
 
