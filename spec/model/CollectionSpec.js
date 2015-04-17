@@ -81,4 +81,13 @@ describe('collection', function () {
             done();
         });
     });
+
+    it('truncates', function (done) {
+        collection.truncate().table('tbl').then(function () {
+            expect(connection.queryLog).toEqual([
+                ['TRUNCATE tbl;', [], {}]
+            ]);
+            done();
+        });
+    });
 });
