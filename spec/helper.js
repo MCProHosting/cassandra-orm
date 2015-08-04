@@ -7,13 +7,13 @@ module.exports = function () {
             return connection.execute(
                 'CREATE TABLE users (' +
                 '    first_name text PRIMARY KEY,' +
-                '    last_name text,' +
+                '    last_name text, a int' +
                 ');');
         })
         .then(function () {
             return connection.execute(
-                'INSERT INTO users (first_name, last_name) VALUES (?, ?);',
-                ["Connor", "Peet"]
+                'INSERT INTO users (first_name, last_name, a) VALUES (?, ?, ?);',
+                ["Connor", "Peet", "42"]
             );
         })
         .bind(connection);

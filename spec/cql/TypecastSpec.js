@@ -11,7 +11,7 @@ describe('single typecasts', function () {
 
         expect(function () {
             typecast(c, 'asdf');
-        }).toThrow(new errors.InvalidType());
+        }).toThrow(new errors.InvalidType('Expect col to be one of: string, or number for coercion to a number'));
     });
     it('works for floats', function () {
         var c = columns.Float('col');
@@ -21,7 +21,7 @@ describe('single typecasts', function () {
 
         expect(function () {
             typecast(c, 'asdf');
-        }).toThrow(new errors.InvalidType());
+        }).toThrow(new errors.InvalidType('Expect col to be one of: string, or number for coercion to a number'));
     });
     it('works for strings', function () {
         var c = columns.Text('col');
@@ -43,22 +43,20 @@ describe('single typecasts', function () {
 
         expect(function () {
             typecast(c, 'asdf');
-        }).toThrow(new errors.InvalidType());
+        }).toThrow(new errors.InvalidType('Expect col to be one of: number, function, object with .toDate(), or date for coercion to a date'));
     });
     it('works for buffer', function () {
         var c = columns.BLOB('col');
         expect(Buffer.isBuffer(typecast(c, 'foo'))).toBe(true);
         expect(typecast(c, 'foo').toString('utf8')).toBe('foo');
     });
-});
 
-describe('collection typecasts', function () {
     it('works on sets and lists', function () {
         var c = columns.Set('col', ['int']);
         expect(typecast(c, [1, '2.5', 3.6])).toEqual([1, 2, 3]);
         expect(function () {
             typecast(c, [1, 'foo', 3.6]);
-        }).toThrow(new errors.InvalidType());
+        }).toThrow(new errors.InvalidType('Expect col to be one of: string, or number for coercion to a number'));
     });
     it('works for maps', function () {
         var c = columns.Map('col', ['int', 'int']);
@@ -71,10 +69,10 @@ describe('collection typecasts', function () {
 
         expect(function () {
             typecast(c, { 'foo': 2 });
-        }).toThrow(new errors.InvalidType());
+        }).toThrow(new errors.InvalidType('Expect col to be one of: string, or number for coercion to a number'));
         expect(function () {
             typecast(c, { 1: 'foo' });
-        }).toThrow(new errors.InvalidType());
+        }).toThrow(new errors.InvalidType('Expect col to be one of: string, or number for coercion to a number'));
     });
 
     it('works for tuples', function () {
@@ -84,6 +82,6 @@ describe('collection typecasts', function () {
 
         expect(function () {
             typecast(c, ['a', 2]);
-        }).toThrow(new errors.InvalidType());
+        }).toThrow(new errors.InvalidType('Expect col to be one of: string, or number for coercion to a number'));
     });
 });
