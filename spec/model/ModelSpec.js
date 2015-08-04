@@ -113,6 +113,18 @@ describe('Model', function () {
             });
         });
 
+        it('saves on partial updates (issue #1)', function (done) {
+            var model = collection.new().sync({ a: 3 });
+            model.a = 4;
+
+            model.save().then(function () {
+                expect(connection.queryLog).toEqual([
+                    ['UPDATE foo SET a = ? WHERE a = ?;', [4, 3], {}]
+                ]);
+                done();
+            });
+        });
+
         it('deletes', function (done) {
             model.delete().then(function () {
                 expect(connection.queryLog).toEqual([
