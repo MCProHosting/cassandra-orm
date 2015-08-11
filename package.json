@@ -4,7 +4,8 @@
   "description": "Node.js ORM for Cassandra 2.1+. Inspired by SQLAlchemy. WIP.",
   "main": "lib/connection.js",
   "scripts": {
-    "test": "node node_modules/jasmine/bin/jasmine.js"
+    "test": "node node_modules/jasmine/bin/jasmine.js",
+    "cover": "node node_modules/istanbul/lib/cli cover node_modules/jasmine/bin/jasmine.js --root lib"
   },
   "repository": {
     "type": "git",
@@ -32,6 +33,7 @@
     "bluebird": "~2.3.11",
     "cassandra-driver": "^2.1.2",
     "deep-equal": "^0.2.1",
+    "istanbul": "^0.3.17",
     "lodash": "~2.4.1"
   }
 }
