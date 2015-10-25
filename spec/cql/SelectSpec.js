@@ -14,7 +14,10 @@ describe('select', function () {
             .columns('a', 'b')
             .from('tbl')
             .parameterize()
-        ).toEqual([[], 'SELECT a, b FROM tbl;']);
+        ).toEqual({
+            parameters: [],
+            query: 'SELECT a, b FROM tbl;'
+        });
     });
 
     describe('select', function () {
@@ -22,14 +25,20 @@ describe('select', function () {
             expect(new Select()
                 .from(table)
                 .parameterize()
-            ).toEqual([[], 'SELECT * FROM tbl;']);
+            ).toEqual({
+                parameters: [],
+                query: 'SELECT * FROM tbl;'
+            });
         });
 
         it('also accepts a string table name', function () {
             expect(new Select()
                 .from('tbl')
                 .parameterize()
-            ).toEqual([[], 'SELECT * FROM tbl;']);
+            ).toEqual({
+                parameters: [],
+                query: 'SELECT * FROM tbl;'
+            });
         });
 
         it('select specific columns', function () {
@@ -37,7 +46,10 @@ describe('select', function () {
                 .columns(t.Text('a').as('q'), t.Text('b'))
                 .from('tbl')
                 .parameterize()
-            ).toEqual([[], 'SELECT a as q, b FROM tbl;']);
+            ).toEqual({
+                parameters: [],
+                query: 'SELECT a as q, b FROM tbl;'
+            });
         });
 
         it('select specific columns as strings', function () {
@@ -45,7 +57,10 @@ describe('select', function () {
                 .columns('a', 'b')
                 .from('tbl')
                 .parameterize()
-            ).toEqual([[], 'SELECT a, b FROM tbl;']);
+            ).toEqual({
+                parameters: [],
+                query: 'SELECT a, b FROM tbl;'
+            });
         });
     });
 
@@ -54,12 +69,16 @@ describe('select', function () {
             .columns('a', 'b')
             .from('tbl')
             .where(t.Text('a'), '<', 3)
-            .orWhere(function (w) {
-                w.where('r', '>', 1).orWhere('z', '>', new Raw('x'));
-            })
+            .andWhere('z', new Raw('x'))
             .andWhere('c', '>', 2)
             .parameterize()
-        ).toEqual([[3, 1, 2], 'SELECT a, b FROM tbl WHERE a < ? OR (r > ? OR z > x) AND c > ?;']);
+        ).toEqual({
+            parameters: [
+                { key: 'a', value: 3 },
+                { key: 'c', value: 2 }
+            ],
+            query: 'SELECT a, b FROM tbl WHERE a < ? AND z > x AND c > ?;'
+        });
     });
 
     it('adds limit', function () {
@@ -67,7 +86,10 @@ describe('select', function () {
             .from(table)
             .limit(5)
             .parameterize()
-        ).toEqual([[], 'SELECT * FROM tbl LIMIT 5;']);
+        ).toEqual({
+            parameters: [],
+            query: 'SELECT * FROM tbl LIMIT 5;'
+        });
     });
 
     it('orders', function () {
@@ -76,7 +98,10 @@ describe('select', function () {
             .orderBy('a', 'asc')
             .orderBy(t.Text('b').desc())
             .parameterize()
-        ).toEqual([[], 'SELECT * FROM tbl ORDER BY a ASC, b DESC;']);
+        ).toEqual({
+            parameters: [],
+            query: 'SELECT * FROM tbl ORDER BY a ASC, b DESC;'
+        });
     });
 
     it('allows filter', function () {
@@ -84,6 +109,9 @@ describe('select', function () {
             .from(table)
             .filter()
             .parameterize()
-        ).toEqual([[], 'SELECT * FROM tbl ALLOW FILTERING;']);
+        ).toEqual({
+            parameters: [],
+            query: 'SELECT * FROM tbl ALLOW FILTERING;'
+        });
     });
 });

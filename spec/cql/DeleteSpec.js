@@ -13,7 +13,10 @@ describe('insert', function () {
         expect(new Delete()
             .from(table)
             .parameterize()
-        ).toEqual([[], 'DELETE FROM tbl;']);
+        ).toEqual({
+            parameters: [],
+            query: 'DELETE FROM tbl;'
+        });
     });
 
     it('generates basic with columns', function () {
@@ -21,7 +24,10 @@ describe('insert', function () {
             .columns('a', 'b')
             .from(table)
             .parameterize()
-        ).toEqual([[], 'DELETE a, b FROM tbl;']);
+        ).toEqual({
+            parameters: [],
+            query: 'DELETE a, b FROM tbl;'
+        });
     });
 
     it('where', function () {
@@ -29,7 +35,10 @@ describe('insert', function () {
             .from(table)
             .where('a', '=', 'b')
             .parameterize()
-        ).toEqual([['b'], 'DELETE FROM tbl WHERE a = ?;']);
+        ).toEqual({
+            parameters: [{ key: 'a', value: 'b' }],
+            query: 'DELETE FROM tbl WHERE a = ?;'
+        });
     });
 
     it('options', function () {
@@ -37,7 +46,10 @@ describe('insert', function () {
             .from(table)
             .ttl(30)
             .parameterize()
-        ).toEqual([[], 'DELETE FROM tbl USING TTL 30;']);
+        ).toEqual({
+            parameters: [],
+            query: 'DELETE FROM tbl USING TTL 30;'
+        });
     });
 
     it('conditional', function () {
@@ -45,7 +57,10 @@ describe('insert', function () {
             .from(table)
             .when('a', 'b')
             .parameterize()
-        ).toEqual([['b'], 'DELETE FROM tbl IF a = ?;']);
+        ).toEqual({
+            parameters: [{ key: 'a', value: 'b' }],
+            query: 'DELETE FROM tbl IF a = ?;'
+        });
     });
 
     it('complex', function () {
@@ -56,6 +71,9 @@ describe('insert', function () {
             .where('q', '=', new Raw('w'))
             .ttl(30)
             .parameterize()
-        ).toEqual([['b'], 'DELETE a, b FROM tbl USING TTL 30 WHERE q = w IF a = ?;']);
+        ).toEqual({
+            parameters: [{ key: 'a', value: 'b' }],
+            query: 'DELETE a, b FROM tbl USING TTL 30 WHERE q = w IF a = ?;'
+        });
     });
 });

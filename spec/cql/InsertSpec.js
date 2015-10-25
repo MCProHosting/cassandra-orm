@@ -15,7 +15,13 @@ describe('insert', function () {
             .columns('a', 'b')
             .values(1, 2)
             .parameterize()
-        ).toEqual([[1, 2], 'INSERT INTO tbl (a, b) VALUES (?, ?);']);
+        ).toEqual({
+            parameters: [
+                { key: 'a', value: 1 },
+                { key: 'b', value: 2 }
+            ],
+            query: 'INSERT INTO tbl (a, b) VALUES (?, ?);'
+        });
     });
     it('accepts raw', function () {
         expect(new Insert()
@@ -23,14 +29,23 @@ describe('insert', function () {
             .columns(t.Text('a'), 'b')
             .values(1, new Raw(2))
             .parameterize()
-        ).toEqual([[1], 'INSERT INTO tbl (a, b) VALUES (?, 2);']);
+        ).toEqual({
+            parameters: [{ key: 'a', value: 1 }],
+            query: 'INSERT INTO tbl (a, b) VALUES (?, 2);'
+        });
     });
     it('works with map', function () {
         expect(new Insert()
             .into(table)
             .data({ 'a': 1, 'b': 2 })
             .parameterize()
-        ).toEqual([[1, 2], 'INSERT INTO tbl (a, b) VALUES (?, ?);']);
+        ).toEqual({
+            parameters: [
+                { key: 'a', value: 1 },
+                { key: 'b', value: 2 }
+            ],
+            query: 'INSERT INTO tbl (a, b) VALUES (?, ?);'
+        });
     });
     it('adds if not exists', function () {
         expect(new Insert()
@@ -39,7 +54,13 @@ describe('insert', function () {
             .columns('a', 'b')
             .values(1, 2)
             .parameterize()
-        ).toEqual([[1, 2], 'INSERT INTO tbl (a, b) VALUES (?, ?) IF NOT EXISTS;']);
+        ).toEqual({
+            parameters: [
+                { key: 'a', value: 1 },
+                { key: 'b', value: 2 }
+            ],
+            query: 'INSERT INTO tbl (a, b) VALUES (?, ?) IF NOT EXISTS;'
+        });
     });
     it('uses one option', function () {
         expect(new Insert()
@@ -48,7 +69,13 @@ describe('insert', function () {
             .values(1, 2)
             .ttl(30)
             .parameterize()
-        ).toEqual([[1, 2], 'INSERT INTO tbl (a, b) VALUES (?, ?) USING TTL 30;']);
+        ).toEqual({
+            parameters: [
+                { key: 'a', value: 1 },
+                { key: 'b', value: 2 }
+            ],
+            query: 'INSERT INTO tbl (a, b) VALUES (?, ?) USING TTL 30;'
+        });
     });
     it('uses both options', function () {
         expect(new Insert()
@@ -58,6 +85,12 @@ describe('insert', function () {
             .ttl(30)
             .timestamp(100)
             .parameterize()
-        ).toEqual([[1, 2], 'INSERT INTO tbl (a, b) VALUES (?, ?) USING TTL 30 AND TIMESTAMP 100;']);
+        ).toEqual({
+            parameters: [
+                { key: 'a', value: 1 },
+                { key: 'b', value: 2 }
+            ],
+            query: 'INSERT INTO tbl (a, b) VALUES (?, ?) USING TTL 30 AND TIMESTAMP 100;'
+        });
     });
 });

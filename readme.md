@@ -122,17 +122,14 @@ Available on Select, Insert, Delete, and Update.
 Both these methods are used in the same way.
 
  * If passed three arguments, it expects them to be `column, operator, value`. The value will be parameterized _unless_ a Raw string is passed.
- * If passed a function as the first an only parameter, it creates a where grouping. For example:
+ * If passed two arguments, it assumes you're giving it a column and a value and implicitly inserts an equals sign.
 
 ```js
 c.select()
  .from('users')
  .where('profession', 'CONTAINS', 'wizard')
+ .orWhere('last_name', 'Baggins')
  .orWhere('beard_length', '=', c.Stmt.Raw('\'long\''))
- .andWhere(function (w) {
-     w.where('location', '=', 'mordor')
-      .orWhere('location', '=' 'shire')
- });
 ```
 
 Outputs:

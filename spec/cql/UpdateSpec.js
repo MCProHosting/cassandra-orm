@@ -9,7 +9,10 @@ describe('insert', function () {
             .table(new Table('tbl'))
             .set('a', 'b')
             .parameterize()
-        ).toEqual([['b'], 'UPDATE tbl SET a = ?;']);
+        ).toEqual({
+            parameters: [{ key: 'a', value: 'b' }],
+            query: 'UPDATE tbl SET a = ?;'
+        });
     });
     it('generates multiple', function () {
         expect(new Update()
@@ -17,7 +20,14 @@ describe('insert', function () {
             .set('a', 'b')
             .set('c', 2, 4)
             .parameterize()
-        ).toEqual([['b', 2, 4], 'UPDATE tbl SET a = ?, c [?] = ?;']);
+        ).toEqual({
+            parameters: [
+                { key: 'a', value: 'b' },
+                { key: undefined, value: 2 },
+                { key: 'c', value: 4 }
+            ],
+            query: 'UPDATE tbl SET a = ?, c [?] = ?;'
+        });
     });
     it('using', function () {
         expect(new Update()
@@ -26,7 +36,10 @@ describe('insert', function () {
             .timestamp(30)
             .ttl(60)
             .parameterize()
-        ).toEqual([['b'], 'UPDATE tbl USING TIMESTAMP 30 AND TTL 60 SET a = ?;']);
+        ).toEqual({
+            parameters: [{ key: 'a', value: 'b' }],
+            query: 'UPDATE tbl USING TIMESTAMP 30 AND TTL 60 SET a = ?;'
+        });
     });
     it('where', function () {
         expect(new Update()
@@ -34,7 +47,10 @@ describe('insert', function () {
             .set('a', 'b')
             .where('c', '=', 3)
             .parameterize()
-        ).toEqual([['b', 3], 'UPDATE tbl SET a = ? WHERE c = ?;']);
+        ).toEqual({
+            parameters: [{ key: 'a', value: 'b' }, { key: 'c', value: 3 }],
+            query: 'UPDATE tbl SET a = ? WHERE c = ?;'
+        });
     });
     it('conditional', function () {
         expect(new Update()
@@ -42,6 +58,9 @@ describe('insert', function () {
             .set('a', 'b')
             .when('c', 3)
             .parameterize()
-        ).toEqual([['b', 3], 'UPDATE tbl SET a = ? IF c = ?;']);
+        ).toEqual({
+            parameters: [{ key: 'a', value: 'b' }, { key: 'c', value: 3 }],
+            query: 'UPDATE tbl SET a = ? IF c = ?;'
+        });
     });
 });
